@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AppService {
     file: 'http://file-service:3000',
   };
 
-  async proxyRequest(serviceName: string, path: string, req: Request) {
+  async proxyRequest(serviceName: string, path: string, req: Request, res: Response) {
     const target = this.services[serviceName];
     if (!target) {
       throw new NotFoundException(`Service ${serviceName} not found`);
@@ -38,11 +38,13 @@ export class AppService {
       );
 
       console.log(`[GATEWAY] Success: ${response.status}`);
-      return response.data; // NestJS sẽ tự JSON serialize
+      res.status(response.status).json(response.data);
     } catch (error) {
       console.log(`[GATEWAY] Error:`, error.message);
       console.log(`[GATEWAY] Details:`, error.response?.data);
-      throw new NotFoundException(error.response?.data || { message: 'Gateway Error' });
+      res
+        .status(error.response?.status || 500)
+        .json(error.response?.data || { message: 'Gateway Error' });
     }
   }
 }

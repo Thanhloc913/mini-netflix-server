@@ -14,14 +14,25 @@ export class ProfileService {
         private readonly accountRepository: Repository<Account>,
     ) { }
 
-    @Get()
     getProfile() {
         return this.profileRepository.find();
     }
 
-    @Post()
+    getProfileById(id: string) {
+        return this.profileRepository.findOne({
+            where: { id },
+            relations: ['accountId'], // load luôn quan hệ Account
+        });
+    }
+
+    getProfileByAccountId(accountId: string) {
+        return this.profileRepository.findOne({
+            where: { accountId: { id: accountId } }
+        });
+    }
+
     async createProfile(profile: CreateProfileDto) {
-        if(!profile.name || !profile.accountId) {
+        if (!profile.name || !profile.accountId) {
             throw new BadRequestException('Tên và accountId không được để trống');
         }
 

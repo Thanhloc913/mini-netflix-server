@@ -1,0 +1,68 @@
+version: "3.9"
+services:
+  # === DATABASE ===
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mini-netflix
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: my_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - app-net
+
+  # === AUTH SERVICE ===
+  auth-service:
+    build: ./auth-service
+    container_name: auth_app
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mini-netflix
+    ports:
+      - "3001:3000" # cổng trong container NestJS mặc định 3000
+    networks:
+      - app-net
+
+  # === GATEWAY ===
+  gateway:
+    build: ./gateway
+    container_name: gateway_app
+    restart: always
+    depends_on:
+      - auth-service
+    ports:
+      - "3000:3000"
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  postgres_data:

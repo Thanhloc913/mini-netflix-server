@@ -1,17 +1,18 @@
-import { Controller, All, Req, Res, Param } from '@nestjs/common';
-import type { Request, Response } from 'express';
+import { Controller, All, Req, Param } from '@nestjs/common';
+import type { Request } from 'express';
 import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
-  @All(':serviceName/*')
+  // Bắt tất cả method (GET, POST, PUT, DELETE)
+  @All(':serviceName/*path')
   async proxy(
     @Param('serviceName') serviceName: string,
+    @Param('path') path: string,
     @Req() req: Request,
-    @Res() res: Response,
   ) {
-    return this.appService.proxyRequest(serviceName, req, res);
+    return this.appService.proxyRequest(serviceName, path, req);
   }
 }

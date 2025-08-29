@@ -3,3 +3,8 @@ export type CreateProfileDto = {
   name: string;
   avatarUrl?: string;
 };
+
+export type UpdateProfileDto = {
+  name: string;
+  avatarUrl?: string;
+};

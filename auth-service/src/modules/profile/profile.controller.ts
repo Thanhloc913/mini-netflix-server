@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { CreateProfileDto } from './profile.dto';
+import { CreateProfileDto, UpdateProfileDto } from './profile.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { OwnerOrAdminGuard } from '../auth/owner-or-admin.guard';
 import { AdminGuard } from '../auth/admin.guard';
 import { OwnerOfProfileOrAdminGuard } from '../auth/owner-profile.guard';
 
@@ -22,9 +21,21 @@ export class ProfileController {
         return this.profileService.getProfileById(profileId);
     }
 
-
     @Post()
     createProfile(@Body() profile: CreateProfileDto) {
         return this.profileService.createProfile(profile);
+    }
+
+
+    @UseGuards(JwtAuthGuard, OwnerOfProfileOrAdminGuard)
+    @Put(':id')
+    updateProfile(@Param('id') profileId: string, @Body() updateDTO: UpdateProfileDto) {
+        return this.profileService.updateProfile(profileId, updateDTO);
+    }
+
+    @UseGuards(JwtAuthGuard, OwnerOfProfileOrAdminGuard)
+    @Delete(':id')
+    deleteProfile(@Param('id') profileId: string) {
+        return this.profileService.deleteProfile(profileId);
     }
 }

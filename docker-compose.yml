@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   # === DATABASE ===
   postgres:
@@ -30,6 +31,18 @@ services:
     networks:
       - app-net
 
+  # === REDIS ===
+  redis:
+    image: redis:7-alpine
+    container_name: redis_app
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-net
+
   # === AUTH SERVICE ===
   auth-service:
     build: ./auth-service
@@ -37,14 +50,18 @@ services:
     restart: always
     depends_on:
       - postgres
+      - redis
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: mini-netflix
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: supersecret
     ports:
-      - "3001:3000" # cổng trong container NestJS mặc định 3000
+      - "3001:3000" # container chạy cổng 3000, map ra ngoài 3001
     networks:
       - app-net
 
@@ -55,6 +72,15 @@ services:
     restart: always
     depends_on:
       - auth-service
+      - redis
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:3000
+      MOVIE_SERVICE_URL: http://movie-service:3000
+      COMMENT_SERVICE_URL: http://comment-service:3000
+      FILE_SERVICE_URL: http://file-service:3000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: supersecret
     ports:
       - "3000:3000"
     networks:
@@ -66,3 +92,4 @@ networks:
 
 volumes:
   postgres_data:
+  redis_data:

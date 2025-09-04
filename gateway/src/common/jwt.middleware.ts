@@ -8,9 +8,8 @@ export class JwtMiddleware implements NestMiddleware {
   constructor(private readonly redisService: RedisService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    // dùng originalUrl để đảm bảo còn tiền tố service (vd: /auth/login)
     if ((req as any).originalUrl?.startsWith('/auth')) {
-      return next(); // bỏ qua check cho auth-service
+      return next();
     }
 
     const authHeader = req.headers['authorization'];

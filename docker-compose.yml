@@ -45,7 +45,9 @@ services:
 
   # === AUTH SERVICE ===
   auth-service:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
     container_name: auth_app
     restart: always
     depends_on:
@@ -62,6 +64,7 @@ services:
       JWT_SECRET: supersecret
     ports:
       - "3001:3000" # container chạy cổng 3000, map ra ngoài 3001
+      - "50051:50051" # gRPC, map container 50051 -> host 50051
     networks:
       - app-net
 

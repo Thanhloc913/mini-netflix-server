@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto, UpdateProfileDto } from './profile.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { OwnerOfProfileOrAdminGuard } from '../../common/guards/owner-profile.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('profile')
 export class ProfileController {
@@ -22,15 +23,19 @@ export class ProfileController {
     }
 
     @Post()
-    createProfile(@Body() profile: CreateProfileDto) {
-        return this.profileService.createProfile(profile);
+    @UseInterceptors(FileInterceptor('avatar'))
+    async createProfile(
+        @Body() profile: CreateProfileDto,
+        @UploadedFile() avatar?: Express.Multer.File,
+    ) {
+        return this.profileService.createProfile(profile, avatar);
     }
-
 
     @UseGuards(JwtAuthGuard, OwnerOfProfileOrAdminGuard)
     @Put(':id')
-    updateProfile(@Param('id') profileId: string, @Body() updateDTO: UpdateProfileDto) {
-        return this.profileService.updateProfile(profileId, updateDTO);
+    @UseInterceptors(FileInterceptor('avatar'))
+    updateProfile(@Param('id') profileId: string, @Body() updateDTO: UpdateProfileDto, @UploadedFile() avatar?: Express.Multer.File) {
+        return this.profileService.updateProfile(profileId, updateDTO, avatar);
     }
 
     @UseGuards(JwtAuthGuard, OwnerOfProfileOrAdminGuard)

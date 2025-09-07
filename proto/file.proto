@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package file;
+
+service FileService {
+  rpc UploadMovieFile (UploadMovieFileRequest) returns (UploadMovieFileResponse);
+}
+
+message UploadMovieFileRequest {
+  bytes data = 1; // chỉ binary
+}
+
+message UploadMovieFileResponse {
+  string url = 1; // link truy cập Azure Blob
+}

@@ -3,7 +3,16 @@ syntax = "proto3";
 package file;
 
 service FileService {
+  rpc UploadAvatarFile (UploadAvatarFileRequest) returns (UploadAvatarFileResponse);
   rpc UploadMovieFile (UploadMovieFileRequest) returns (UploadMovieFileResponse);
+}
+
+message UploadAvatarFileRequest {
+  bytes data = 1; // chỉ binary
+}
+
+message UploadAvatarFileResponse {
+  string url = 1; // link truy cập Azure Blob
 }
 
 message UploadMovieFileRequest {

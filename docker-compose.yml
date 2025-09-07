@@ -77,7 +77,7 @@ services:
     restart: always
     environment:
       AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING}
-      AZURE_STORAGE_CONTAINER: movies
+      AZURE_STORAGE_CONTAINER: ${AZURE_STORAGE_CONTAINER}
     ports:
       - "50052:50052" # gRPC only
     networks:

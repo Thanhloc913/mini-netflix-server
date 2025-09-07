@@ -83,7 +83,6 @@ services:
     networks:
       - app-net
 
-  # === GATEWAY ===
   gateway:
     build: ./gateway
     container_name: gateway_app
@@ -93,8 +92,8 @@ services:
       - file-service
       - redis
     environment:
-      AUTH_SERVICE_URL: grpc://auth-service:50051
-      FILE_SERVICE_URL: grpc://file-service:50052
+      AUTH_SERVICE_URL: http://auth-service:3000   # sửa từ grpc:// sang http://
+      FILE_SERVICE_URL: grpc://file-service:50052  # file-service vẫn gRPC
       MOVIE_SERVICE_URL: http://movie-service:3000
       COMMENT_SERVICE_URL: http://comment-service:3000
       REDIS_HOST: redis

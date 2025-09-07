@@ -56,27 +56,29 @@ export class ProfileService {
         return this.profileRepository.save(profile);
     }
 
-    async updateProfile(id: string, updateDTO: UpdateProfileDto, avatar?: Express.Multer.File) {
+    async updateProfile(
+        id: string,
+        updateDTO: UpdateProfileDto,
+        avatar?: Express.Multer.File,
+    ) {
         const profile = await this.profileRepository.findOne({ where: { id } });
         if (!profile) {
             throw new BadRequestException('Hồ sơ không tồn tại');
         }
 
-        const updateData: Partial<typeof profile> = {};
-
         if (updateDTO.name) {
-            updateData.name = updateDTO.name;
+            profile.name = updateDTO.name;
         }
 
         if (avatar) {
-            updateData.avatarUrl = await this.fileClient.uploadAvatar(avatar.buffer);
+            const uploadedUrl = await this.fileClient.uploadAvatar(avatar.buffer);
+            profile.avatarUrl = uploadedUrl;
         }
 
-        await this.profileRepository.update(id, updateData);
+        const saved = await this.profileRepository.save(profile);
 
-        return this.profileRepository.findOne({ where: { id } });
+        return saved;
     }
-
 
     async deleteProfile(id: string) {
         const profile = await this.profileRepository.findOne({ where: { id } });

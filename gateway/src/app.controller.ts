@@ -14,7 +14,7 @@ export class AppController {
     console.log('Method:', req.method);
     console.log('URL:', fullPath);
     console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
+    console.log('Tới đây');
     
     const urlParts = fullPath.split('/').filter((part) => part.length > 0);
 

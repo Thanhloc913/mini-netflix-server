@@ -5,10 +5,12 @@ import { AuthController } from './auth.controller';
 import { AccountModule } from '../accounts/account.module';
 import { JwtStrategy } from '../../common/strategies/jwt.strategy';
 import { RedisModule } from '../../redis/redis.module';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
   imports: [
     AccountModule,
+    ProfileModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'super-secret',
       signOptions: { expiresIn: '1h' },

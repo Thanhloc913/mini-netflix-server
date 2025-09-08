@@ -38,6 +38,26 @@ export class AuthService {
     };
   }
 
+  async refreshTokens(refresh_token: string) {
+    try {
+      const payload = this.jwtService.verify(refresh_token, {
+        secret: process.env.JWT_SECRET || 'super-secret',
+      });
+
+      const newPayload = { sub: payload.sub, email: payload.email, role: payload.role };
+
+      const access_token = this.jwtService.sign(newPayload, { expiresIn: '15m' });
+      const new_refresh_token = this.jwtService.sign(newPayload, { expiresIn: '7d' });
+
+      return {
+        access_token,
+        refresh_token: new_refresh_token,
+      };
+    } catch (err) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+  }
+
   async userRegister(registerdto: RegisterDto, confirmPassword: string, avatar?: Express.Multer.File) {
     if (!registerdto.email) {
       throw new BadRequestException('Email is required');

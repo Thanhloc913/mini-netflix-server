@@ -7,11 +7,16 @@ import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/fi
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
-    ) {}
+    ) { }
 
     @Post('login')
-    async login(@Body() logindto : LoginDto) {
+    async login(@Body() logindto: LoginDto) {
         return this.authService.login(logindto);
+    }
+
+    @Post('refresh')
+    async refresh(@Body('refresh_token') refreshToken: string) {
+        return this.authService.refreshTokens(refreshToken);
     }
 
     @Post('register')

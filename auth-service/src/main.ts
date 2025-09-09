@@ -21,7 +21,9 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000);
 
-  console.log(`REST API running on http://localhost:${process.env.PORT ?? 3000}`);
+  console.log(
+    `REST API running on http://localhost:${process.env.PORT ?? 3000}`,
+  );
   console.log('gRPC server running on 0.0.0.0:50051');
 }
 bootstrap();

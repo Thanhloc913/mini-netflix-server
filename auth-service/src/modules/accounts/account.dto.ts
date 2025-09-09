@@ -1,4 +1,4 @@
-import {AccountRole} from './account-role.enum'
+import { AccountRole } from './account-role.enum';
 
 export type CreateAccountDto = {
   email: string;

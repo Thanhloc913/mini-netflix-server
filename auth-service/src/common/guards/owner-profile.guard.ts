@@ -1,5 +1,5 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { ProfileService } from "../../modules/profile/profile.service";
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { ProfileService } from '../../modules/profile/profile.service';
 
 @Injectable()
 export class OwnerOfProfileOrAdminGuard implements CanActivate {

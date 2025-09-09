@@ -29,4 +29,3 @@ import { FileClientService } from '../../common/clients/file-client.service';
   exports: [ProfileService],
 })
 export class ProfileModule {}
-

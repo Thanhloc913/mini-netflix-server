@@ -21,13 +21,22 @@ export class AccountGrpcController {
   }
 
   @GrpcMethod('AccountService', 'CreateUser')
-  async createUser(data: { email: string; password: string; role: AccountRole }) {
+  async createUser(data: {
+    email: string;
+    password: string;
+    role: AccountRole;
+  }) {
     const user = await this.accountService.createUser(data);
     return { user };
   }
 
   @GrpcMethod('AccountService', 'UpdateUser')
-  async updateUser(data: { id: string; email: string; password: string; updatedAt: string }) {
+  async updateUser(data: {
+    id: string;
+    email: string;
+    password: string;
+    updatedAt: string;
+  }) {
     const user = await this.accountService.updateUser(data.id, {
       email: data.email,
       password: data.password,

@@ -1,32 +1,40 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { AccountRole } from './account-role.enum'
+import { AccountRole } from './account-role.enum';
 
 @Entity()
 export class Account {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column()
-    email: string;
+  @Column()
+  email: string;
 
-    @Exclude()
-    @Column()
-    password_hash: string;
+  @Exclude()
+  @Column()
+  password_hash: string;
 
-    @Column({
-        type: 'enum',
-        enum: AccountRole,
-        default: AccountRole.USER,
-    })
-    role: AccountRole;
+  @Column({
+    type: 'enum',
+    enum: AccountRole,
+    default: AccountRole.USER,
+  })
+  role: AccountRole;
 
-    @CreateDateColumn({ type: 'timestamptz' })
-    createdAt: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 
-    @UpdateDateColumn({ type: 'timestamptz' })
-    updatedAt: Date | null;
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date | null;
 
-    @DeleteDateColumn({ type: 'timestamptz' })
-    deletedAt?: Date | null;
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt?: Date | null;
 }

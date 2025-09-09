@@ -3,8 +3,12 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom, Observable } from 'rxjs';
 
 interface FileGrpcService {
-  uploadAvatarFile(data: { data: Uint8Array | string }): Observable<{ url: string }>;
-  uploadMovieFile(data: { data: Uint8Array | string }): Observable<{ url: string }>;
+  uploadAvatarFile(data: {
+    data: Uint8Array | string;
+  }): Observable<{ url: string }>;
+  uploadMovieFile(data: {
+    data: Uint8Array | string;
+  }): Observable<{ url: string }>;
 }
 
 @Injectable()
@@ -18,12 +22,11 @@ export class FileClientService implements OnModuleInit {
   }
 
   async uploadAvatar(buffer: Buffer): Promise<string> {
-
     const data = new Uint8Array(buffer);
     const result$ = this.fileService.uploadAvatarFile({ data });
     const { url } = await lastValueFrom(result$);
 
-    console.log("Upload Result:", url);
+    console.log('Upload Result:', url);
     return url;
   }
 

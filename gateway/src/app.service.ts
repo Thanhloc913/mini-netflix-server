@@ -20,15 +20,21 @@ export class AppService {
   }
 
   private services: Record<string, string | undefined> = {
-    auth: process.env.AUTH_SERVICE_URL,     // http://auth-service:3000
+    auth: process.env.AUTH_SERVICE_URL, // http://auth-service:3000
     movie: process.env.MOVIE_SERVICE_URL,
     comment: process.env.COMMENT_SERVICE_URL,
     file: process.env.FILE_SERVICE_URL,
   };
 
-  async proxyRequest(serviceName: string, _path: string, req: Request, res: Response) {
+  async proxyRequest(
+    serviceName: string,
+    _path: string,
+    req: Request,
+    res: Response,
+  ) {
     const targetBase = this.services[serviceName];
-    if (!targetBase) throw new NotFoundException(`Service ${serviceName} not found`);
+    if (!targetBase)
+      throw new NotFoundException(`Service ${serviceName} not found`);
 
     // /auth/register -> restPath = /register
     const [, , ...rest] = req.url.split('/');
@@ -41,7 +47,7 @@ export class AppService {
       this.proxy.web(req, res, {
         target: targetUrl,
         changeOrigin: true,
-        ignorePath: true,          // quan trọng: không ghép lại req.url (/auth/register)
+        ignorePath: true, // quan trọng: không ghép lại req.url (/auth/register)
       });
       return;
     }
@@ -50,7 +56,12 @@ export class AppService {
     const targetUrl = `${targetBase}${restPath}`;
     this.logger.log(`Proxying ${req.method} ${targetUrl}`);
 
-    const { host, connection, 'content-length': _cl, ...safeHeaders } = req.headers;
+    const {
+      host,
+      connection,
+      'content-length': _cl,
+      ...safeHeaders
+    } = req.headers;
     const response = await firstValueFrom(
       this.httpService.request({
         url: targetUrl,

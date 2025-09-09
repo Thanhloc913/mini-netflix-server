@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @All('*')
   async proxy(@Req() req: Request, @Res() res: Response) {
@@ -15,7 +15,7 @@ export class AppController {
     console.log('URL:', fullPath);
     console.log('Headers:', req.headers);
     console.log('Tới đây');
-    
+
     const urlParts = fullPath.split('/').filter((part) => part.length > 0);
 
     if (urlParts.length === 0) {

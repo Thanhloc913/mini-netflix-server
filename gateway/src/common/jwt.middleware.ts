@@ -22,7 +22,9 @@ export class JwtMiddleware implements NestMiddleware {
       const payload = jwt.verify(token, process.env.JWT_SECRET!);
 
       // check blacklist trong redis
-      const isBlacklisted = await this.redisService.get(`blacklist:${(payload as any).jti}`);
+      const isBlacklisted = await this.redisService.get(
+        `blacklist:${(payload as any).jti}`,
+      );
       if (isBlacklisted) {
         return res.status(401).json({ message: 'Token revoked' });
       }

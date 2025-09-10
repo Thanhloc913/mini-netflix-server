@@ -7,11 +7,11 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mini-netflix
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-multiple-dbs.sql:/docker-entrypoint-initdb.d/init-multiple-dbs.sql
     networks:
       - app-net
 
@@ -56,13 +56,13 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: mini-netflix
+      DB_NAME: auth_service        # ✅ DB riêng
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: supersecret
     ports:
-      - "3001:3000"   # REST
-      - "50051:50051" # gRPC
+      - "3001:3000"
+      - "50051:50051"
     networks:
       - app-net
 
@@ -78,7 +78,7 @@ services:
       AZURE_STORAGE_CONTAINER_AVATARS: ${AZURE_STORAGE_CONTAINER_AVATARS}
       AZURE_STORAGE_CONTAINER_VIDEOS: ${AZURE_STORAGE_CONTAINER_VIDEOS}
     ports:
-      - "50052:50052" # gRPC only
+      - "50052:50052"
     networks:
       - app-net
 
@@ -97,12 +97,12 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: mini-netflix
+      DB_NAME: movie_service       # ✅ DB riêng
       REDIS_HOST: redis
       REDIS_PORT: 6379
     ports:
-      - "3002:3000"   # REST (port cho movie-service)
-      - "50053:50053" # gRPC (nếu bạn muốn mở cho grpc)
+      - "3002:3000"
+      - "50053:50053"
     networks:
       - app-net
 
@@ -113,10 +113,11 @@ services:
     depends_on:
       - auth-service
       - file-service
+      - movie-service
       - redis
     environment:
-      AUTH_SERVICE_URL: http://auth-service:3000   # sửa từ grpc:// sang http://
-      FILE_SERVICE_URL: grpc://file-service:50052  # file-service vẫn gRPC
+      AUTH_SERVICE_URL: http://auth-service:3000
+      FILE_SERVICE_URL: grpc://file-service:50052
       MOVIE_SERVICE_URL: http://movie-service:3000
       COMMENT_SERVICE_URL: http://comment-service:3000
       REDIS_HOST: redis

@@ -4,12 +4,13 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   OneToMany,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
 import { Episode } from '../episodes/episode.entity';
-import { Genre } from '../genres//genre.entity';
+import { Genre } from '../genres/genre.entity';
 import { Cast } from '../casts/cast.entity';
 
 @Entity('movies')
@@ -41,11 +42,14 @@ export class Movie {
   @Column({ type: 'decimal', precision: 2, scale: 1, default: 0 })
   rating: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: Date;
 
   // Relations
   @OneToMany(() => Episode, (episode) => episode.movie)

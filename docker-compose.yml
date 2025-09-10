@@ -82,6 +82,30 @@ services:
     networks:
       - app-net
 
+  # === MOVIE SERVICE ===
+  movie-service:
+    build:
+      context: .
+      dockerfile: ./movie-service/Dockerfile
+    container_name: movie_app
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mini-netflix
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3002:3000"   # REST (port cho movie-service)
+      - "50053:50053" # gRPC (nếu bạn muốn mở cho grpc)
+    networks:
+      - app-net
+
   gateway:
     build: ./gateway
     container_name: gateway_app

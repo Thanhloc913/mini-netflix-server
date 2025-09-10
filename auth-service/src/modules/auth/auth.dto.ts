@@ -1,4 +1,4 @@
-import { AccountRole } from "../accounts/account-role.enum";
+import { AccountRole } from '../accounts/account-role.enum';
 
 export class LoginDto {
   email: string;

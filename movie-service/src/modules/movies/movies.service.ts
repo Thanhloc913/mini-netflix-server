@@ -16,7 +16,18 @@ export class MoviesService {
   ) {}
 
   async createMovie(dto: CreateMovieDto): Promise<Movie> {
-    const { title, description, releaseDate, duration, isSeries, posterUrl, trailerUrl, genreIds } = dto;
+    const {
+      title,
+      description,
+      releaseDate,
+      duration,
+      isSeries,
+      posterUrl,
+      trailerUrl,
+      videoUrl,
+      genreIds,
+    } = dto;
+
     let genres: Genre[] = [];
     if (genreIds && genreIds.length > 0) {
       genres = await this.genreRepository.find({
@@ -32,6 +43,7 @@ export class MoviesService {
       isSeries,
       posterUrl,
       trailerUrl,
+      videoUrl,
       genres,
     });
 

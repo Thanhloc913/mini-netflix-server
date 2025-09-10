@@ -28,7 +28,7 @@ export class Movie {
   releaseDate: Date;
 
   @Column({ type: 'int', nullable: true })
-  duration: number; // phút
+  duration: number; // phút (áp dụng cho phim lẻ)
 
   @Column({ default: false })
   isSeries: boolean;
@@ -38,6 +38,10 @@ export class Movie {
 
   @Column({ nullable: true })
   trailerUrl: string;
+
+  // 👉 Thêm trường này: chỉ dùng cho phim lẻ
+  @Column({ nullable: true })
+  videoUrl: string;
 
   @Column({ type: 'decimal', precision: 2, scale: 1, default: 0 })
   rating: number;

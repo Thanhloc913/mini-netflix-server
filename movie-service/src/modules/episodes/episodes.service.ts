@@ -19,7 +19,19 @@ export class EpisodesService {
     if (!movie)
       throw new NotFoundException(`Movie with ID ${dto.movieId} not found`);
 
-    const episode = this.episodeRepository.create({ ...dto, movie });
+    const lastEpisode = await this.episodeRepository.findOne({
+      where: { movie: { id: dto.movieId }, seasonNumber: dto.seasonNumber },
+      order: { episodeNumber: 'DESC' },
+    });
+
+    const nextEpisodeNumber = lastEpisode ? lastEpisode.episodeNumber + 1 : 1;
+
+    const episode = this.episodeRepository.create({
+      ...dto,
+      episodeNumber: nextEpisodeNumber,
+      movie,
+    });
+
     return this.episodeRepository.save(episode);
   }
 

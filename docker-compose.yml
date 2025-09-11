@@ -41,6 +41,35 @@ services:
     networks:
       - app-net
 
+  # === KAFKA CLUSTER ===
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - app-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - app-net
+
   # === AUTH SERVICE ===
   auth-service:
     build:
@@ -56,7 +85,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: auth_service        # ✅ DB riêng
+      DB_NAME: auth_service
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: supersecret
@@ -93,6 +122,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - kafka
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -101,12 +131,32 @@ services:
       DB_NAME: movie_service
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KAFKA_BROKER: kafka:9092
     ports:
       - "3002:3000"
       - "50053:50053"
     networks:
       - app-net
 
+  # === TRANSCODING SERVICE ===
+  transcoding-service:
+    build:
+      context: .
+      dockerfile: ./transcoding-service/Dockerfile
+    container_name: transcoding_app
+    restart: always
+    depends_on:
+      - kafka
+      - file-service
+    environment:
+      KAFKA_BROKER: kafka:9092
+      FILE_SERVICE_GRPC_URL: file-service:50052
+    ports:
+      - "3004:3000"   # REST debug
+    networks:
+      - app-net
+
+  # === GATEWAY ===
   gateway:
     build: ./gateway
     container_name: gateway_app

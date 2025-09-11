@@ -17,4 +17,9 @@ export class FileGrpcController {
     const url = await this.fileService.uploadMovieFile(data.data);
     return { url };
   }
+
+  @GrpcMethod('FileService', 'GenerateMoviePresignedUrl')
+  async generateMoviePresignedUrl() {
+    return this.fileService.generateMovieUploadUrl();
+  }
 }

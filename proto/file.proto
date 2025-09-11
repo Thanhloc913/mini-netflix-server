@@ -5,6 +5,7 @@ package file;
 service FileService {
   rpc UploadAvatarFile (UploadAvatarFileRequest) returns (UploadAvatarFileResponse);
   rpc UploadMovieFile (UploadMovieFileRequest) returns (UploadMovieFileResponse);
+  rpc GenerateMoviePresignedUrl (PresignRequest) returns (PresignResponse);
 }
 
 message UploadAvatarFileRequest {
@@ -21,4 +22,11 @@ message UploadMovieFileRequest {
 
 message UploadMovieFileResponse {
   string url = 1; // link truy cập Azure Blob
+}
+
+message PresignRequest {}
+
+message PresignResponse {
+  string uploadUrl = 1;
+  string blobUrl = 2;
 }

@@ -4,9 +4,10 @@ import { Episode } from './episode.entity';
 import { Movie } from '../movies/movie.entity';
 import { EpisodesController } from './episodes.controller';
 import { EpisodesService } from './episodes.service';
+import { VideoAsset } from '../video-assets/video-asset.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Episode, Movie])],
+  imports: [TypeOrmModule.forFeature([Episode, Movie, VideoAsset])],
   controllers: [EpisodesController],
   providers: [EpisodesService],
   exports: [EpisodesService],

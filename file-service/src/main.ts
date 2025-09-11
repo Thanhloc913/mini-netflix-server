@@ -4,19 +4,20 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.GRPC,
-      options: {
-        package: 'file',
-        protoPath: join(__dirname, '../proto/file.proto'),
-        url: '0.0.0.0:50052',
-      },
-    },
-  );
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+  console.log('🌐 File-service REST running at http://0.0.0.0:3000');
 
-  await app.listen();
+  const grpcApp = app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'file',
+      protoPath: join(__dirname, '../proto/file.proto'),
+      url: '0.0.0.0:50052',
+    },
+  });
+
+  await app.startAllMicroservices();
   console.log('🎬 File-service gRPC running at 0.0.0.0:50052');
 }
 bootstrap();

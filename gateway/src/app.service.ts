@@ -20,10 +20,10 @@ export class AppService {
   }
 
   private services: Record<string, string | undefined> = {
-    auth: process.env.AUTH_SERVICE_URL, // http://auth-service:3000
+    auth: process.env.AUTH_SERVICE_URL,
     movie: process.env.MOVIE_SERVICE_URL,
     comment: process.env.COMMENT_SERVICE_URL,
-    file: process.env.FILE_SERVICE_URL,
+    file: process.env.FILE_SERVICE_HTTP_URL,
   };
 
   async proxyRequest(

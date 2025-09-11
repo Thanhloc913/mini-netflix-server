@@ -78,6 +78,7 @@ services:
       AZURE_STORAGE_CONTAINER_AVATARS: ${AZURE_STORAGE_CONTAINER_AVATARS}
       AZURE_STORAGE_CONTAINER_VIDEOS: ${AZURE_STORAGE_CONTAINER_VIDEOS}
     ports:
+      - "3003:3000"
       - "50052:50052"
     networks:
       - app-net
@@ -97,7 +98,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: movie_service       # ✅ DB riêng
+      DB_NAME: movie_service
       REDIS_HOST: redis
       REDIS_PORT: 6379
     ports:
@@ -117,7 +118,8 @@ services:
       - redis
     environment:
       AUTH_SERVICE_URL: http://auth-service:3000
-      FILE_SERVICE_URL: grpc://file-service:50052
+      FILE_SERVICE_GRPC_URL: grpc://file-service:50052
+      FILE_SERVICE_HTTP_URL: http://file-service:3000
       MOVIE_SERVICE_URL: http://movie-service:3000
       COMMENT_SERVICE_URL: http://comment-service:3000
       REDIS_HOST: redis

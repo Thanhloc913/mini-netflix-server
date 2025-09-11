@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   Post,
-  Put,
+  Patch,
   Delete,
   Param,
   Body,
@@ -30,7 +30,7 @@ export class EpisodesController {
     return this.episodesService.getEpisodeById(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateEpisodeDto,

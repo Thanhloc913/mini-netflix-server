@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   Post,
-  Put,
+  Patch,
   Delete,
   Param,
   Body,
@@ -41,7 +41,7 @@ export class MoviesController {
     return this.moviesService.searchMovies(keyword);
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateMovieDto,

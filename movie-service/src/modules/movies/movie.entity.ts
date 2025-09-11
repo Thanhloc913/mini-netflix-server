@@ -12,6 +12,7 @@ import {
 import { Episode } from '../episodes/episode.entity';
 import { Genre } from '../genres/genre.entity';
 import { Cast } from '../casts/cast.entity';
+import { VideoAsset } from '../video-assets/video-asset.entity';
 
 @Entity('movies')
 export class Movie {
@@ -39,9 +40,9 @@ export class Movie {
   @Column({ nullable: true })
   trailerUrl: string;
 
-  // 👉 Thêm trường này: chỉ dùng cho phim lẻ
-  @Column({ nullable: true })
-  videoUrl: string;
+  // ✅ Quan hệ với VideoAssets
+  @OneToMany(() => VideoAsset, (videoAsset) => videoAsset.movie)
+  videoAssets: VideoAsset[];
 
   @Column({ type: 'decimal', precision: 2, scale: 1, default: 0 })
   rating: number;

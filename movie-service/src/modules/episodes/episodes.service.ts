@@ -26,8 +26,10 @@ export class EpisodesService {
 
     const nextEpisodeNumber = lastEpisode ? lastEpisode.episodeNumber + 1 : 1;
 
+    const { movieId, ...rest } = dto;
+
     const episode = this.episodeRepository.create({
-      ...dto,
+      ...rest,
       episodeNumber: nextEpisodeNumber,
       movie,
     });
@@ -54,7 +56,10 @@ export class EpisodesService {
     const episode = await this.episodeRepository.findOneBy({ id });
     if (!episode)
       throw new NotFoundException(`Episode with ID ${id} not found`);
-    Object.assign(episode, dto);
+
+    const { movieId, ...rest } = dto;
+    Object.assign(episode, rest);
+
     return this.episodeRepository.save(episode);
   }
 

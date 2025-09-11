@@ -9,8 +9,8 @@ export const createMovieSchema = z.object({
   isSeries: z.boolean(),
   posterUrl: z.string().url().optional(),
   trailerUrl: z.string().url().optional(),
-  videoUrl: z.string().url().optional(),
   genreIds: z.array(z.string().uuid()).optional(),
+  castIds: z.array(z.string().uuid()).optional(),
 });
 
 export class CreateMovieDto extends createZodDto(createMovieSchema) {}

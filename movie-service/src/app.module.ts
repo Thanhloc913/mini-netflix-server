@@ -6,6 +6,7 @@ import { MoviesModule } from './modules/movies/movies.module';
 import { GenresModule } from './modules/genres/genres.module';
 import { EpisodesModule } from './modules/episodes/episodes.module';
 import { CastsModule } from './modules/casts/casts.module';
+import { VideoAssetsModule } from './modules/video-assets/video-assets.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CastsModule } from './modules/casts/casts.module';
     GenresModule,
     EpisodesModule,
     CastsModule,
+    VideoAssetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

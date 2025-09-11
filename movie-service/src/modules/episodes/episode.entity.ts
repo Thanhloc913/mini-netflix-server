@@ -3,11 +3,13 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
 } from 'typeorm';
 import { Movie } from '../movies/movie.entity';
+import { VideoAsset } from '../video-assets/video-asset.entity';
 
 @Entity('episodes')
 export class Episode {
@@ -26,8 +28,9 @@ export class Episode {
   @Column({ length: 255 })
   title: string;
 
-  @Column({ nullable: true })
-  videoUrl: string;
+  // ✅ Quan hệ mới
+  @OneToMany(() => VideoAsset, (videoAsset) => videoAsset.episode)
+  videoAssets: VideoAsset[];
 
   @Column({ type: 'int', nullable: true })
   duration: number;

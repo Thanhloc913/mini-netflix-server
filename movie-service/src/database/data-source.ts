@@ -3,6 +3,7 @@ import { Movie } from '../modules/movies/movie.entity';
 import { Episode } from '../modules/episodes/episode.entity';
 import { Genre } from '../modules/genres/genre.entity';
 import { Cast } from '../modules/casts/cast.entity';
+import { VideoAsset } from '../modules/video-assets/video-asset.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -11,6 +12,6 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'movie_service',
-  entities: [Movie, Episode, Genre, Cast],
+  entities: [Movie, Episode, Genre, Cast, VideoAsset],
   migrations: ['src/database/migrations/*{.ts,.js}'],
 });

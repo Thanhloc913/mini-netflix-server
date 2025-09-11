@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike, In } from 'typeorm';
 import { Movie } from './movie.entity';
 import { Genre } from '../genres/genre.entity';
+import { Cast } from '../casts/cast.entity';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 
@@ -13,6 +14,8 @@ export class MoviesService {
     private readonly movieRepository: Repository<Movie>,
     @InjectRepository(Genre)
     private readonly genreRepository: Repository<Genre>,
+    @InjectRepository(Cast)
+    private readonly castRepository: Repository<Cast>,
   ) {}
 
   async createMovie(dto: CreateMovieDto): Promise<Movie> {
@@ -24,8 +27,8 @@ export class MoviesService {
       isSeries,
       posterUrl,
       trailerUrl,
-      videoUrl,
       genreIds,
+      castIds,
     } = dto;
 
     let genres: Genre[] = [];
@@ -35,16 +38,23 @@ export class MoviesService {
       });
     }
 
+    let casts: Cast[] = [];
+    if (castIds && castIds.length > 0) {
+      casts = await this.castRepository.find({
+        where: { id: In(castIds) },
+      });
+    }
+
     const movie = this.movieRepository.create({
       title,
       description,
-      releaseDate,
+      releaseDate: releaseDate ? new Date(releaseDate) : undefined,
       duration,
       isSeries,
       posterUrl,
       trailerUrl,
-      videoUrl,
       genres,
+      casts,
     });
 
     return this.movieRepository.save(movie);
@@ -52,7 +62,7 @@ export class MoviesService {
 
   getAllMovies(): Promise<Movie[]> {
     return this.movieRepository.find({
-      relations: ['genres', 'casts', 'episodes'],
+      relations: ['genres', 'casts', 'episodes', 'videoAssets'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -60,7 +70,7 @@ export class MoviesService {
   getMovieById(id: string): Promise<Movie | null> {
     return this.movieRepository.findOne({
       where: { id },
-      relations: ['genres', 'casts', 'episodes'],
+      relations: ['genres', 'casts', 'episodes', 'videoAssets'],
     });
   }
 
@@ -81,7 +91,7 @@ export class MoviesService {
   async updateMovie(id: string, dto: UpdateMovieDto): Promise<Movie> {
     const movie = await this.movieRepository.findOne({
       where: { id },
-      relations: ['genres'],
+      relations: ['genres', 'casts'],
     });
 
     if (!movie) {
@@ -95,7 +105,16 @@ export class MoviesService {
       movie.genres = genres;
     }
 
-    Object.assign(movie, dto);
+    if (dto.castIds) {
+      const casts = await this.castRepository.find({
+        where: { id: In(dto.castIds) },
+      });
+      movie.casts = casts;
+    }
+
+    Object.assign(movie, dto, {
+      releaseDate: dto.releaseDate ? new Date(dto.releaseDate) : movie.releaseDate,
+    });
 
     return this.movieRepository.save(movie);
   }

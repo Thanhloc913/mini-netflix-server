@@ -1,12 +1,13 @@
-import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
 
 export const createCastSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  role: z.string().min(1, 'Role is required'),
+  name: z.string().min(1),
+  role: z.string().min(1),
 });
+
+export class CreateCastDto extends createZodDto(createCastSchema) {}
 
 export const updateCastSchema = createCastSchema.partial();
 
-export class CreateCastDto extends createZodDto(createCastSchema) {}
 export class UpdateCastDto extends createZodDto(updateCastSchema) {}

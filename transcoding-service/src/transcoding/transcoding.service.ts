@@ -16,6 +16,9 @@ export class TranscodingService {
   async handleEncode(videoUrl: string) {
     this.logger.log(`🚀 Start encoding video: ${videoUrl}`);
 
+    // 🔑 xin SAS read cho input
+    const { sasUrl } = await this.fileClient.getReadSasUrl(videoUrl);
+
     const outputs = [
       { resolution: '720p', format: 'mp4' },
       { resolution: '480p', format: 'mp4' },
@@ -24,19 +27,17 @@ export class TranscodingService {
     const results: { resolution: string; url: string }[] = [];
 
     for (const out of outputs) {
-      // 🔑 xin SAS URL
       const presign = await this.fileClient.getPresignedUrl();
 
-      // 🎬 encode local
       const outputPath = await this.ffmpegUtil.encode(
-        videoUrl,
+        sasUrl, // ✅ encode bằng SAS read url
         out.resolution,
         out.format,
       );
 
-      // 📤 upload bằng stream, không đọc hết vào RAM
       const stats = fs.statSync(outputPath);
       const stream = fs.createReadStream(outputPath);
+
       await axios.put(presign.uploadUrl, stream, {
         headers: {
           'Content-Type': 'video/mp4',

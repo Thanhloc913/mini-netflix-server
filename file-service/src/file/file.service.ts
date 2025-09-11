@@ -97,4 +97,32 @@ export class FileService {
       blobUrl: blobClient.url,
     };
   }
+
+  async generateReadSasUrl(blobUrl: string): Promise<{ sasUrl: string }> {
+    const url = new URL(blobUrl);
+    const containerName = url.pathname.split('/')[1];
+    const blobName = url.pathname.split('/').slice(2).join('/');
+
+    const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING!;
+    const account = connStr.match(/AccountName=([^;]+)/)?.[1];
+    const key = connStr.match(/AccountKey=([^;]+)/)?.[1];
+    if (!account || !key) throw new Error('❌ Cannot parse account/key');
+
+    const credential = new StorageSharedKeyCredential(account, key);
+
+    const expiresOn = new Date(new Date().valueOf() + 15 * 60 * 1000);
+
+    const sas = generateBlobSASQueryParameters(
+      {
+        containerName,
+        blobName,
+        permissions: BlobSASPermissions.parse('r'),
+        expiresOn,
+      },
+      credential,
+    ).toString();
+
+    const sasUrl = `${blobUrl}?${sas}`;
+    return { sasUrl };
+  }
 }

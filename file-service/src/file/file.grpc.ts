@@ -22,4 +22,9 @@ export class FileGrpcController {
   async generateMoviePresignedUrl() {
     return this.fileService.generateMovieUploadUrl();
   }
+
+  @GrpcMethod('FileService', 'GenerateReadSasUrl')
+  async generateReadSasUrl(data: { blobUrl: string }) {
+    return this.fileService.generateReadSasUrl(data.blobUrl);
+  }
 }

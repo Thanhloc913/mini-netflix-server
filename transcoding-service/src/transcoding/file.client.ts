@@ -6,6 +6,7 @@ interface FileServiceGrpc {
   GenerateMoviePresignedUrl(
     data: Record<string, never>,
   ): Observable<{ uploadUrl: string; blobUrl: string }>;
+  GenerateReadSasUrl(data: { blobUrl: string }): Observable<{ sasUrl: string }>;
 }
 
 @Injectable()
@@ -22,5 +23,9 @@ export class FileClient implements OnModuleInit {
     const result = await lastValueFrom(this.svc.GenerateMoviePresignedUrl({}));
     console.log('Presign URL đây:', result);
     return result as { uploadUrl: string; blobUrl: string };
+  }
+
+  async getReadSasUrl(blobUrl: string) {
+    return lastValueFrom(this.svc.GenerateReadSasUrl({ blobUrl }));
   }
 }

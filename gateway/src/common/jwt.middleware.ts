@@ -5,7 +5,7 @@ import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
-  constructor(private readonly redisService: RedisService) {}
+  constructor(private readonly redisService: RedisService) { }
 
   async use(req: Request, res: Response, next: NextFunction) {
     if ((req as any).originalUrl?.startsWith('/auth')) {

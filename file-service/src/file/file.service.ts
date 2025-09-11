@@ -86,7 +86,7 @@ export class FileService {
       {
         containerName,
         blobName: filename,
-        permissions: BlobSASPermissions.parse('cwa'),
+        permissions: BlobSASPermissions.parse('cw'),
         expiresOn,
       },
       credential,

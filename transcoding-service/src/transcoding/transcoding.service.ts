@@ -24,20 +24,27 @@ export class TranscodingService {
     const results: { resolution: string; url: string }[] = [];
 
     for (const out of outputs) {
-      const presign = await this.fileClient.getPresignedUrl(
-        out.resolution,
-        out.format,
-      );
+      // 🔑 xin SAS URL
+      const presign = await this.fileClient.getPresignedUrl();
 
+      // 🎬 encode local
       const outputPath = await this.ffmpegUtil.encode(
         videoUrl,
         out.resolution,
         out.format,
       );
 
-      const buffer = fs.readFileSync(outputPath);
-      await axios.put(presign.uploadUrl, buffer, {
-        headers: { 'Content-Type': 'video/mp4' },
+      // 📤 upload bằng stream, không đọc hết vào RAM
+      const stats = fs.statSync(outputPath);
+      const stream = fs.createReadStream(outputPath);
+      await axios.put(presign.uploadUrl, stream, {
+        headers: {
+          'Content-Type': 'video/mp4',
+          'x-ms-blob-type': 'BlockBlob',
+          'Content-Length': stats.size,
+        },
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
       });
 
       this.logger.log(`✅ Uploaded ${out.resolution} to ${presign.blobUrl}`);

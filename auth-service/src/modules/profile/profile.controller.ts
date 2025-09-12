@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   UploadedFile,
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { OwnerOfProfileOrAdminGuard } from '../../common/guards/owner-profile.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { OwnerOfAccountOrAdminGuard } from '../../common/guards/OwnerOfAccountOrAdminGuard';
 
 @Controller('profile')
 export class ProfileController {
@@ -33,6 +35,12 @@ export class ProfileController {
     return this.profileService.getProfileById(profileId);
   }
 
+  @UseGuards(JwtAuthGuard, OwnerOfAccountOrAdminGuard)
+  @Get('/account/:id') // <-- id này là accountId
+  getProfileByAccountId(@Param('id') accountId: string) {
+    return this.profileService.getProfileByAccountId(accountId);
+  }
+
   @Post()
   @UseInterceptors(FileInterceptor('avatar'))
   async createProfile(
@@ -43,7 +51,7 @@ export class ProfileController {
   }
 
   @UseGuards(JwtAuthGuard, OwnerOfProfileOrAdminGuard)
-  @Put(':id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('avatar'))
   updateProfile(
     @Param('id') profileId: string,

@@ -3,6 +3,7 @@ import { TranscodingService } from './transcoding.service';
 import { TranscodingController } from './transcoding.controller';
 import { FfmpegUtil } from '../common/ffmpeg.util';
 import { FileClient } from './file.client';
+import { KafkaProducer } from '../kafka/kafka.producer';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
@@ -21,7 +22,7 @@ import { join } from 'path';
     ]),
   ],
   controllers: [TranscodingController],
-  providers: [TranscodingService, FfmpegUtil, FileClient],
+  providers: [TranscodingService, FfmpegUtil, FileClient, KafkaProducer],
   exports: [FileClient, TranscodingService, ClientsModule],
 })
 export class TranscodingModule {}

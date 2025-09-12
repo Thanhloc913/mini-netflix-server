@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger, Inject, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial } from 'typeorm';
 import { VideoAsset } from './video-asset.entity';
@@ -9,6 +9,8 @@ import { ClientKafka } from '@nestjs/microservices';
 
 @Injectable()
 export class VideoAssetsService {
+  private readonly logger = new Logger(VideoAssetsService.name);
+
   constructor(
     @InjectRepository(VideoAsset)
     private readonly assetRepo: Repository<VideoAsset>,
@@ -16,7 +18,7 @@ export class VideoAssetsService {
     private readonly movieRepo: Repository<Movie>,
     @InjectRepository(Episode)
     private readonly episodeRepo: Repository<Episode>,
-    @Inject('KAFKA_CLIENT') private readonly kafka: ClientKafka,
+    @Optional() @Inject('KAFKA_CLIENT') private readonly kafka?: ClientKafka,
   ) {}
 
   async create(dto: CreateVideoAssetDto): Promise<VideoAsset> {
@@ -54,16 +56,71 @@ export class VideoAssetsService {
     const asset = this.assetRepo.create(partial);
     const saved = await this.assetRepo.save(asset);
 
-    this.kafka.emit('transcode.requested', {
-      assetId: saved.id,
-      movieId: dto.movieId ?? null,
-      episodeId: dto.episodeId ?? null,
-      sourceUrl: saved.url,
-      sourceResolution: saved.resolution,
-      sourceFormat: saved.format,
-    });
+    // Emit topic để transcode (nếu Kafka available)
+    if (this.kafka) {
+      try {
+        this.kafka.emit('transcode.requested', {
+          originalAssetId: saved.id,
+          movieId: dto.movieId ?? null,
+          episodeId: dto.episodeId ?? null,
+          sourceUrl: saved.url,
+          sourceResolution: saved.resolution,
+          sourceFormat: saved.format,
+        });
+        this.logger.log(`📤 Emitted transcode request for asset ${saved.id}`);
+      } catch (error) {
+        this.logger.error(`❌ Failed to emit transcode request: ${error.message}`);
+      }
+    }
 
     return saved;
+  }
+
+  // Method để tạo metadata cho các file đã transcode
+  async createTranscodedAssets(payload: {
+    originalAssetId: string;
+    movieId?: string;
+    episodeId?: string;
+    results: { resolution: string; format: string; url: string }[];
+  }): Promise<VideoAsset[]> {
+    this.logger.log(`🎬 Creating transcoded assets for original: ${payload.originalAssetId}`);
+
+    // Tìm original asset để lấy movie/episode
+    const originalAsset = await this.assetRepo.findOne({
+      where: { id: payload.originalAssetId },
+      relations: ['movie', 'episode'],
+    });
+
+    if (!originalAsset) {
+      this.logger.error(`❌ Original asset ${payload.originalAssetId} not found`);
+      return [];
+    }
+
+    const transcodedAssets: VideoAsset[] = [];
+
+    for (const result of payload.results) {
+      const partial: DeepPartial<VideoAsset> = {
+        resolution: result.resolution,
+        format: result.format,
+        url: result.url,
+        status: 'done',
+      };
+
+      // Gán cùng movie/episode như original
+      if (originalAsset.movie) partial.movie = originalAsset.movie;
+      if (originalAsset.episode) partial.episode = originalAsset.episode;
+
+      const asset = this.assetRepo.create(partial);
+      const saved = await this.assetRepo.save(asset);
+      transcodedAssets.push(saved);
+    }
+
+    // Cập nhật status của original asset
+    originalAsset.status = 'done';
+    await this.assetRepo.save(originalAsset);
+
+    this.logger.log(`✅ Created ${transcodedAssets.length} transcoded assets`);
+    return transcodedAssets;
   }
 
   findByMovie(movieId: string): Promise<VideoAsset[]> {

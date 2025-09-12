@@ -9,14 +9,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'movie-service',
+            clientId: 'movie-service-producer',
             brokers: [process.env.KAFKA_BROKER ?? 'localhost:9092'],
           },
-          consumer: { groupId: 'movie-service-producer' },
         },
       },
     ]),
   ],
   exports: [ClientsModule],
 })
-export class MovieKafkaModule {}
+export class KafkaProducerModule {}

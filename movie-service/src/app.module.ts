@@ -7,6 +7,7 @@ import { GenresModule } from './modules/genres/genres.module';
 import { EpisodesModule } from './modules/episodes/episodes.module';
 import { CastsModule } from './modules/casts/casts.module';
 import { VideoAssetsModule } from './modules/video-assets/video-assets.module';
+import { KafkaConsumerModule } from './kafka/kafka.consumer.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { VideoAssetsModule } from './modules/video-assets/video-assets.module';
     EpisodesModule,
     CastsModule,
     VideoAssetsModule,
+    KafkaConsumerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

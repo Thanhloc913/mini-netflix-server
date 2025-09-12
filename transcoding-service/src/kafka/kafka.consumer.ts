@@ -14,7 +14,7 @@ export class KafkaConsumer {
 
     if (topic === 'transcode.requested' && value) {
       const payload = JSON.parse(value);
-      await this.transcodingService.handleEncode(payload.sourceUrl);
+      await this.transcodingService.handleEncode(payload);
     }
   }
 }

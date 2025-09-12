@@ -5,10 +5,13 @@ import { Movie } from '../movies/movie.entity';
 import { Episode } from '../episodes/episode.entity';
 import { VideoAssetsService } from './video-assets.service';
 import { VideoAssetsController } from './video-assets.controller';
-import { MovieKafkaModule } from '../../kafka/movie.kafka.module';
+import { KafkaProducerModule } from '../../kafka/kafka.producer.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([VideoAsset, Movie, Episode]), MovieKafkaModule],
+  imports: [
+    TypeOrmModule.forFeature([VideoAsset, Movie, Episode]), 
+    KafkaProducerModule,
+  ],
   controllers: [VideoAssetsController],
   providers: [VideoAssetsService],
   exports: [VideoAssetsService],

@@ -18,6 +18,40 @@ export class MoviesService {
     private readonly castRepository: Repository<Cast>,
   ) {}
 
+  async seedAnimeMovies(): Promise<Movie[]> {
+    const apiKey = process.env.TMDB_API_KEY;
+    const url = `https://api.themoviedb.org/3/discover/tv?api_key=caf7f9d16fb0b3fae16182de3aa77384&with_genres=16&with_keywords=210024&language=vi-VN&page=3`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const movies: Movie[] = [];
+
+    for (const item of data.results) {
+      // DeepPartial<Movie> để hợp TypeORM
+      const movie: Partial<Movie> = {
+        title: item.name,
+        description: item.overview || 'Chưa có mô tả',
+        releaseDate: item.first_air_date ? new Date(item.first_air_date) : undefined,
+        posterUrl: item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : undefined,
+        trailerUrl: undefined, // có thể gọi thêm API /tv/{id}/videos
+        isSeries: true,
+        rating: item.vote_average ? Number(item.vote_average.toFixed(1)) : 0,
+      };
+
+      // dùng create để ép thành entity
+      const entity = this.movieRepository.create(movie);
+
+      // save trả về Movie
+      const saved = await this.movieRepository.save(entity);
+      movies.push(saved);
+    }
+
+    return movies;
+  }
+
   async createMovie(dto: CreateMovieDto): Promise<Movie> {
     const {
       title,
@@ -113,7 +147,9 @@ export class MoviesService {
     }
 
     Object.assign(movie, dto, {
-      releaseDate: dto.releaseDate ? new Date(dto.releaseDate) : movie.releaseDate,
+      releaseDate: dto.releaseDate
+        ? new Date(dto.releaseDate)
+        : movie.releaseDate,
     });
 
     return this.movieRepository.save(movie);

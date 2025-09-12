@@ -16,6 +16,11 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
+  @Post('seed')
+  seed() {
+    return this.moviesService.seedAnimeMovies();
+  }
+  
   @Post()
   create(@Body() dto: CreateMovieDto) {
     return this.moviesService.createMovie(dto);

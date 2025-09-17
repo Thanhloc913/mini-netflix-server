@@ -152,10 +152,9 @@ services:
       KAFKA_BROKER: kafka:9092
       FILE_SERVICE_GRPC_URL: file-service:50052
     ports:
-      - "3004:3000"   # REST debug
+      - "3004:3000"
     networks:
       - app-net
-
   # === GATEWAY ===
   gateway:
     build: ./gateway

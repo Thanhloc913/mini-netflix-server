@@ -6,6 +6,11 @@ import { Genre } from '../genres/genre.entity';
 import { Cast } from '../casts/cast.entity';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import {
+  PaginationQueryDto,
+  PaginatedResponse,
+  NonPaginatedResponse,
+} from '../../common/dto/pagination-query.dto';
 
 @Injectable()
 export class MoviesService {
@@ -28,23 +33,21 @@ export class MoviesService {
     const movies: Movie[] = [];
 
     for (const item of data.results) {
-      // DeepPartial<Movie> để hợp TypeORM
       const movie: Partial<Movie> = {
         title: item.name,
         description: item.overview || 'Chưa có mô tả',
-        releaseDate: item.first_air_date ? new Date(item.first_air_date) : undefined,
+        releaseDate: item.first_air_date
+          ? new Date(item.first_air_date)
+          : undefined,
         posterUrl: item.poster_path
           ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
           : undefined,
-        trailerUrl: undefined, // có thể gọi thêm API /tv/{id}/videos
+        trailerUrl: undefined,
         isSeries: true,
         rating: item.vote_average ? Number(item.vote_average.toFixed(1)) : 0,
       };
 
-      // dùng create để ép thành entity
       const entity = this.movieRepository.create(movie);
-
-      // save trả về Movie
       const saved = await this.movieRepository.save(entity);
       movies.push(saved);
     }
@@ -94,11 +97,42 @@ export class MoviesService {
     return this.movieRepository.save(movie);
   }
 
-  getAllMovies(): Promise<Movie[]> {
-    return this.movieRepository.find({
+  async getAllMovies(): Promise<NonPaginatedResponse<Movie>> {
+    const [data, total] = await this.movieRepository.findAndCount({
       relations: ['genres', 'casts', 'episodes', 'videoAssets'],
       order: { createdAt: 'DESC' },
     });
+
+    return { data, total };
+  }
+
+  async getAllMoviesPaginated(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Movie>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.movieRepository.findAndCount({
+      relations: ['genres', 'casts', 'episodes', 'videoAssets'],
+      order: { [query.sortBy]: query.sortOrder },
+      take: limit,
+      skip: skip,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   getMovieById(id: string): Promise<Movie | null> {
@@ -108,18 +142,86 @@ export class MoviesService {
     });
   }
 
-  getMoviesByGenre(genreId: string): Promise<Movie[]> {
-    return this.movieRepository.find({
-      relations: ['genres'],
-      where: { genres: { id: genreId } },
-    });
-  }
-
-  searchMovies(keyword: string): Promise<Movie[]> {
-    return this.movieRepository.find({
+  async searchMovies(keyword: string): Promise<NonPaginatedResponse<Movie>> {
+    const [data, total] = await this.movieRepository.findAndCount({
       where: { title: ILike(`%${keyword}%`) },
       relations: ['genres'],
     });
+
+    return { data, total };
+  }
+
+  async searchMoviesPaginated(
+    keyword: string,
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Movie>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.movieRepository.findAndCount({
+      where: { title: ILike(`%${keyword}%`) },
+      relations: ['genres'],
+      order: { [query.sortBy]: query.sortOrder },
+      take: limit,
+      skip: skip,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  async getMoviesByGenre(
+    genreId: string,
+  ): Promise<NonPaginatedResponse<Movie>> {
+    const [data, total] = await this.movieRepository.findAndCount({
+      relations: ['genres'],
+      where: { genres: { id: genreId } },
+    });
+
+    return { data, total };
+  }
+
+  async getMoviesByGenrePaginated(
+    genreId: string,
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Movie>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.movieRepository.findAndCount({
+      relations: ['genres'],
+      where: { genres: { id: genreId } },
+      order: { [query.sortBy]: query.sortOrder },
+      take: limit,
+      skip: skip,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async updateMovie(id: string, dto: UpdateMovieDto): Promise<Movie> {
